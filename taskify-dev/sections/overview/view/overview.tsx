@@ -252,7 +252,7 @@ export default function OverViewPage() {
                 <p className="max-w-md text-lg italic text-white/80">
                   "The best things in life are worth waiting for.{' '}
                   <span className="whitespace-nowrap">Hang tight!</span>" —
-                  Jiyauddin
+                 
                 </p>
 
                 <div className="flex flex-col items-center space-y-4">

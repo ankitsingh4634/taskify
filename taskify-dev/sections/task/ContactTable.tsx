@@ -32,36 +32,41 @@ const ContactTable: React.FC<ContactTableProps> = ({ contacts, onDelete, onUpdat
   };
 
   return (
-    <div>
-      <table className="min-w-full border-collapse border">
-        <thead>
-          <tr>
-            <th className="border px-4 py-2">Contact Name</th>
-            <th className="border px-4 py-2">Email</th>
-            <th className="border px-4 py-2">Phone</th>
-            <th className="border px-4 py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-       
-          {contacts.map((contact) => (
-            <tr key={contact.id}>
-              <td className="border px-4 py-2">{contact.fullName}</td>
-              <td className="border px-4 py-2">{contact.email}</td>
-              <td className="border px-4 py-2">{contact.phone}</td>
-              <td className="border px-4 py-2 flex space-x-2">
-                <Button variant="ghost" onClick={() => handleEdit(contact)}>
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" onClick={() => onDelete(contact.id)}>
-                  <Trash className="h-4 w-4" />
-                </Button>
-              </td>
+    <div className="overflow-hidden">
+      <div className="max-h-[400px] overflow-y-auto"> {/* Outer scrollable div */}
+        <table className="min-w-full border-collapse border">
+          <thead>
+            <tr>
+              <th className="border px-4 py-2">Contact Name</th>
+              <th className="border px-4 py-2">Email</th>
+              <th className="border px-4 py-2">Phone</th>
+              <th className="border px-4 py-2">Actions</th>
             </tr>
-          ))}
-        
-        </tbody>
-      </table>
+          </thead>
+        </table>
+        {/* Scrollable body */}
+        <div className="max-h-[300px] overflow-y-auto"> 
+          <table className="min-w-full border-collapse border">
+            <tbody>
+              {contacts.map((contact) => (
+                <tr key={contact.id}>
+                  <td className="border px-4 py-2">{contact.fullName}</td>
+                  <td className="border px-4 py-2">{contact.email}</td>
+                  <td className="border px-4 py-2">{contact.phone}</td>
+                  <td className="border px-4 py-2 flex space-x-2">
+                    <Button variant="ghost" onClick={() => handleEdit(contact)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" onClick={() => onDelete(contact.id)}>
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {/* Render the EditContactDialog modal */}
       {selectedContact && (

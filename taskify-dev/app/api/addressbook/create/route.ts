@@ -8,8 +8,8 @@ export async function POST(req: Request) {
   const body = await req.json();
   const { fullName, email, phone, address, organization, title } = body;
 
-  if (!fullName || !email || !phone || !address || !organization || !title) {
-    return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
+  if (!fullName || !phone) {
+    return NextResponse.json({ message: 'Name and phone number are required' }, { status: 400 });
   }
 
   const secret = process.env.NEXTAUTH_SECRET;
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
       address,
       organization,
       title,
-      uid: uniqueUID
+      uid: uniqueUID,
     });
 
     if (!carddavResponse.ok) {
@@ -46,11 +46,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Failed to sync with CardDAV' }, { status: 500 });
     }
 
-    // Store in MySQL database
+    // Store in MySQL database, handling optional fields
     const [result] = await pool.query<ResultSetHeader>(
       `INSERT INTO contacts (userId, fullName, email, phone, address, organization, title, carddav_uid) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [userId, fullName, email, phone, address, organization, title, uniqueUID]
+      [
+        userId,
+        fullName,
+        email || null,
+        phone,
+        address || null,
+        organization || null,
+        title || null,
+        uniqueUID,
+      ]
     );
 
     const contactId = result.insertId;
@@ -68,27 +77,22 @@ export async function POST(req: Request) {
   }
 }
 
-async function syncToCardDAV({
-  fullName,
-  email,
-  phone,
-  address,
-  organization,
-  title,
-  uid,
-}: any) {
+async function syncToCardDAV({ fullName, email, phone, address, organization, title, uid }: any) {
   const url = `https://www.fgquest.net/dav.php/addressbooks/8wiretest/default/${uid}.vcf`;
 
-  const vcardData = `BEGIN:VCARD
+  // Only include fields that are provided
+  let vcardData = `BEGIN:VCARD
 VERSION:3.0
 FN:${fullName}
-EMAIL:${email}
 TEL:${phone}
-ADR:${address}
-ORG:${organization}
-TITLE:${title}
-UID:${uid}
-END:VCARD`;
+UID:${uid}`;
+
+  if (email) vcardData += `\nEMAIL:${email}`;
+  if (address) vcardData += `\nADR:${address}`;
+  if (organization) vcardData += `\nORG:${organization}`;
+  if (title) vcardData += `\nTITLE:${title}`;
+
+  vcardData += `\nEND:VCARD`;
 
   const authHeader = 'Basic ' + Buffer.from('8wiretest:8wiretest654123!!').toString('base64');
 

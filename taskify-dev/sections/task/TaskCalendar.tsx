@@ -32,7 +32,7 @@ export default function TaskCalendarPage() {
   const [taskDescription, setTaskDescription] = useState('');
   const [taskStart, setTaskStart] = useState(new Date());
   const [taskEnd, setTaskEnd] = useState(new Date());
-  const [taskStatus, setTaskStatus] = useState(''); // New state for task status
+  const [taskStatus, setTaskStatus] = useState('pending'); // Default to "pending"
 
   useEffect(() => {
     fetchTasks();
@@ -64,7 +64,7 @@ export default function TaskCalendarPage() {
     setTaskDescription(event.description);
     setTaskStart(new Date(event.start));
     setTaskEnd(new Date(event.end));
-    setTaskStatus(event.status || ''); // Set status from selected event
+    setTaskStatus(event.status || 'pending'); // Set status from selected event
     setEditDialogOpen(true);
   };
 
@@ -73,7 +73,7 @@ export default function TaskCalendarPage() {
     setTaskEnd(end);
     setTaskTitle('');
     setTaskDescription('');
-    setTaskStatus(''); // Reset status for new events
+    setTaskStatus('pending'); // Reset status for new events
     setAddDialogOpen(true);
   };
 
@@ -83,7 +83,7 @@ export default function TaskCalendarPage() {
       description: taskDescription,
       startTime: format(taskStart, "yyyy-MM-dd'T'HH:mm:ss"),
       endTime: format(taskEnd, "yyyy-MM-dd'T'HH:mm:ss"),
-      status: 'pending',
+      status: taskStatus, // Use the selected status
     };
 
     try {
@@ -111,7 +111,7 @@ export default function TaskCalendarPage() {
       description: taskDescription,
       startTime: format(taskStart, "yyyy-MM-dd'T'HH:mm:ss"),
       endTime: format(taskEnd, "yyyy-MM-dd'T'HH:mm:ss"),
-      status: taskStatus || selectedEvent.status || 'pending', // Use updated status or fallback
+      status: taskStatus, // Use the selected status
     };
 
     try {
@@ -195,12 +195,16 @@ export default function TaskCalendarPage() {
                 onChange={(e) => setTaskEnd(new Date(e.target.value))}
                 aria-label="End Date" 
               />
-              <Input 
-                placeholder="Task Status" 
+              <select 
                 value={taskStatus} 
-                onChange={(e) => setTaskStatus(e.target.value)} // New input for status
-                aria-label="Task Status" // Added aria-label for accessibility
-              />
+                onChange={(e) => setTaskStatus(e.target.value)} 
+                aria-label="Task Status"
+                className="block w-full p-2 border rounded"
+              >
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
               <DialogFooter>
                 <Button onClick={handleTaskUpdate}>Update Task</Button>
               </DialogFooter>
@@ -239,6 +243,16 @@ export default function TaskCalendarPage() {
                 onChange={(e) => setTaskEnd(new Date(e.target.value))}
                 aria-label="End Date" 
               />
+              <select 
+                value={taskStatus} 
+                onChange={(e) => setTaskStatus(e.target.value)} 
+                aria-label="Task Status"
+                className="block w-full p-2 border rounded"
+              >
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
               <DialogFooter>
                 <Button onClick={handleAddEvent}>Add Event</Button>
               </DialogFooter>
